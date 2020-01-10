@@ -23,11 +23,9 @@ class UserController {
       return res.status(400).json({ error: 'User already exists' });
     }
 
-    const user = await User.create(req.body);
-    user.password = undefined;
-    user.password_hash = undefined;
+    const { id, name, email } = await User.create(req.body);
 
-    return res.json(user);
+    return res.json({ id, name, email });
   }
 
   async update(req, res) {
@@ -49,12 +47,13 @@ class UserController {
       return res.status(400).json({ error: 'Invalid fields' });
     }
 
-    const { email, oldPassword } = req.body;
+    const { email: emailExists, oldPassword } = req.body;
+
     const user = await User.findByPk(req.userId);
 
-    if (email && email !== user.email) {
+    if (emailExists && emailExists !== user.email) {
       const userExists = await User.findOne({
-        where: { email },
+        where: { email: emailExists },
       });
 
       if (userExists) {
@@ -66,11 +65,9 @@ class UserController {
       return res.status(400).json({ error: 'Password does not match' });
     }
 
-    const userUpdated = await user.update(req.body);
-    userUpdated.password = undefined;
-    userUpdated.password_hash = undefined;
+    const { id, name, email } = await user.update(req.body);
 
-    return res.json(userUpdated);
+    return res.json({ id, name, email });
   }
 }
 
